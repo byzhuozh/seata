@@ -22,7 +22,6 @@ import java.util.Set;
 
 /**
  * @author guoyao
- * @date 2019/4/17
  */
 public final class TransactionInfo implements Serializable {
 
@@ -33,6 +32,8 @@ public final class TransactionInfo implements Serializable {
     private String name;
 
     private Set<RollbackRule> rollbackRules;
+
+    private Propagation propagation;
 
     public int getTimeOut() {
         return timeOut;
@@ -74,6 +75,18 @@ public final class TransactionInfo implements Serializable {
             }
         }
 
-        return winner == null || !(winner instanceof NoRollbackRule);
+        return !(winner instanceof NoRollbackRule);
+    }
+
+    public Propagation getPropagation() {
+        if (this.propagation != null) {
+            return this.propagation;
+        }
+        //default propagation
+        return Propagation.REQUIRED;
+    }
+
+    public void setPropagation(Propagation propagation) {
+        this.propagation = propagation;
     }
 }

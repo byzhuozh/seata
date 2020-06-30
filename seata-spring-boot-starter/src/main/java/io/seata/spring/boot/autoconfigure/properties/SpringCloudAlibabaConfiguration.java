@@ -26,8 +26,7 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * The type Spring cloud alibaba configuration.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2019 /11/04
+ * @author slievrly
  */
 @ConfigurationProperties(prefix = StarterConstants.SEATA_SPRING_CLOUD_ALIBABA_PREFIX)
 public class SpringCloudAlibabaConfiguration implements ApplicationContextAware {
@@ -45,7 +44,7 @@ public class SpringCloudAlibabaConfiguration implements ApplicationContextAware 
      * @return the application id
      */
     public String getApplicationId() {
-        if (null == applicationId) {
+        if (applicationId == null) {
             applicationId = applicationContext.getEnvironment().getProperty(SPRING_APPLICATION_NAME_KEY);
         }
         return applicationId;
@@ -57,9 +56,9 @@ public class SpringCloudAlibabaConfiguration implements ApplicationContextAware 
      * @return the tx service group
      */
     public String getTxServiceGroup() {
-        if (null == txServiceGroup) {
+        if (txServiceGroup == null) {
             String applicationId = getApplicationId();
-            if (null == applicationId) {
+            if (applicationId == null) {
                 LOGGER.warn("{} is null, please set its value", SPRING_APPLICATION_NAME_KEY);
             }
             txServiceGroup = applicationId + DEFAULT_SPRING_CLOUD_SERVICE_GROUP_POSTFIX;

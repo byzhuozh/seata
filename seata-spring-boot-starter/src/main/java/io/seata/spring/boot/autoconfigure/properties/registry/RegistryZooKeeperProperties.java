@@ -22,7 +22,6 @@ import static io.seata.spring.boot.autoconfigure.StarterConstants.REGISTRY_ZK_PR
 
 /**
  * @author xingfudeshi@gmail.com
- * @date 2019/10/03
  */
 @Component
 @ConfigurationProperties(prefix = REGISTRY_ZK_PREFIX)
@@ -31,6 +30,8 @@ public class RegistryZooKeeperProperties {
     private String serverAddr = "127.0.0.1:2181";
     private long sessionTimeout = 6000L;
     private long connectTimeout = 2000L;
+    private String username = "";
+    private String password = "";
 
     public String getCluster() {
         return cluster;
@@ -65,6 +66,22 @@ public class RegistryZooKeeperProperties {
 
     public RegistryZooKeeperProperties setConnectTimeout(long connectTimeout) {
         this.connectTimeout = connectTimeout;
+        return this;
+    }
+    public String getUsername() {
+        return username;
+    }
+
+    public RegistryZooKeeperProperties setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+    public String getPassword() {
+        return password;
+    }
+
+    public RegistryZooKeeperProperties setPassword(String password) {
+        this.password = password;
         return this;
     }
 }

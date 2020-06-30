@@ -18,8 +18,7 @@ package io.seata.common.exception;
 /**
  * The enum Framework error code.
  *
- * @author jimin.jm @alibaba-inc.com
- * @date 2018 /10/9
+ * @author slievrly
  */
 public enum FrameworkErrorCode {
     /**
@@ -201,6 +200,11 @@ public enum FrameworkErrorCode {
      * State machine instance not exists
      */
     StateMachineInstanceNotExists("0420", "State machine instance not exists", "State machine instance not exists"),
+
+    /**
+     * State machine execution timeout
+     */
+    StateMachineExecutionTimeout("0421", "State machine execution timeout", "State machine execution timeout"),
 
     /**
      * Undefined error

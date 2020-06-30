@@ -22,14 +22,17 @@ import static io.seata.spring.boot.autoconfigure.StarterConstants.REGISTRY_NACOS
 
 /**
  * @author xingfudeshi@gmail.com
- * @date 2019/10/03
  */
 @Component
 @ConfigurationProperties(prefix = REGISTRY_NACOS_PREFIX)
 public class RegistryNacosProperties {
     private String serverAddr = "localhost";
     private String namespace = "";
+    private String group = "SEATA_GROUP";
     private String cluster = "default";
+    private String username = "";
+    private String password = "";
+    private String application = "seata-server";
 
     public String getServerAddr() {
         return serverAddr;
@@ -49,12 +52,46 @@ public class RegistryNacosProperties {
         return this;
     }
 
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public String getCluster() {
         return cluster;
     }
 
     public RegistryNacosProperties setCluster(String cluster) {
         this.cluster = cluster;
+        return this;
+    }
+    public String getUsername() {
+        return username;
+    }
+
+    public RegistryNacosProperties setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public RegistryNacosProperties setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public String getApplication() {
+        return application;
+    }
+
+    public RegistryNacosProperties setApplication(String application) {
+        this.application = application;
         return this;
     }
 }

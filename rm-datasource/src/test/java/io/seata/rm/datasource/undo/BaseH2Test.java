@@ -22,7 +22,7 @@ import io.seata.rm.datasource.sql.struct.KeyType;
 import io.seata.rm.datasource.sql.struct.Row;
 import io.seata.rm.datasource.sql.struct.TableMeta;
 import io.seata.rm.datasource.sql.struct.TableRecords;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.store.fs.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -106,6 +106,7 @@ public abstract class BaseH2Test {
     protected static TableMeta mockTableMeta() {
         TableMeta tableMeta = Mockito.mock(TableMeta.class);
         Mockito.when(tableMeta.getPkName()).thenReturn("ID");
+        Mockito.when(tableMeta.getEscapePkName("h2")).thenReturn("`ID`");
         Mockito.when(tableMeta.getTableName()).thenReturn("table_name");
         ColumnMeta meta0 = Mockito.mock(ColumnMeta.class);
         Mockito.when(meta0.getDataType()).thenReturn(Types.INTEGER);
@@ -121,7 +122,7 @@ public abstract class BaseH2Test {
     protected static Field addField(Row row, String name, int type, Object value) {
         Field field = new Field(name, type, value);
         if (name.equalsIgnoreCase("id")) {
-            field.setKeyType(KeyType.PrimaryKey);
+            field.setKeyType(KeyType.PRIMARY_KEY);
         }
         row.add(field);
         return field;
