@@ -16,16 +16,19 @@
 package io.seata.rm.datasource.sql.struct;
 
 import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.operations.String;
 import io.seata.common.exception.NotSupportYetException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 /**
  * @author will
- * @date 2019/9/28
  */
 public class TableMetaTest {
+
+    private final String COLUMN_ID="id";
+    private final String COLUMN_USERCODE="userCode";
 
     @Test
     public void testTableMeta() {
@@ -33,7 +36,7 @@ public class TableMetaTest {
         Assertions.assertEquals(tableMeta, tableMeta);
         Assertions.assertEquals(tableMeta, new TableMeta());
         Assertions.assertEquals(tableMeta.hashCode(), tableMeta.hashCode());
-        Assertions.assertNotEquals(tableMeta, new String());
+        Assertions.assertNotEquals(tableMeta, "");
 
         TableMeta other = new TableMeta();
         other.setTableName("");
@@ -52,8 +55,8 @@ public class TableMetaTest {
     public void testGetColumnMeta() {
         TableMeta tableMeta = new TableMeta();
         tableMeta.getAllColumns().put("id", new ColumnMeta());
-        tableMeta.getAllColumns().put("`name`", new ColumnMeta());
-        Assertions.assertNotNull(tableMeta.getColumnMeta("`id`"));
+        tableMeta.getAllColumns().put("name", new ColumnMeta());
+        Assertions.assertNull(tableMeta.getColumnMeta("`id`"));
         Assertions.assertNotNull(tableMeta.getColumnMeta("name"));
     }
 
@@ -73,31 +76,39 @@ public class TableMetaTest {
     @Test
     public void testGetPrimaryKeyMap() {
         TableMeta tableMeta = new TableMeta();
+
         IndexMeta primary = new IndexMeta();
         primary.setIndextype(IndexType.PRIMARY);
         primary.setValues(Lists.newArrayList(new ColumnMeta()));
+
         tableMeta.getAllIndexes().put("id", primary);
+
         Assertions.assertNotNull(tableMeta.getPrimaryKeyMap());
 
-        Assertions.assertThrows(NotSupportYetException.class, () -> {
-            IndexMeta primary2 = new IndexMeta();
-            primary2.setIndextype(IndexType.PRIMARY);
-            ColumnMeta columnMeta = new ColumnMeta();
-            columnMeta.setColumnName("id2");
-            primary2.setValues(Lists.newArrayList(columnMeta));
-            tableMeta.getAllIndexes().put("id2", primary2);
-            tableMeta.getPrimaryKeyMap();
-        });
+
     }
 
     @Test
     public void testGetPrimaryKeyOnlyName() {
         TableMeta tableMeta = new TableMeta();
+        ColumnMeta columnIdMeta=new ColumnMeta();
+        columnIdMeta.setColumnName(COLUMN_ID);
         IndexMeta primary = new IndexMeta();
         primary.setIndextype(IndexType.PRIMARY);
-        primary.setValues(Lists.newArrayList(new ColumnMeta()));
-        tableMeta.getAllIndexes().put("id", primary);
-        Assertions.assertTrue(tableMeta.getPrimaryKeyOnlyName().size() >= 1);
+        primary.setValues(Lists.newArrayList(columnIdMeta));
+
+        ColumnMeta columnUserCodeMeta=new ColumnMeta();
+        columnUserCodeMeta.setColumnName(COLUMN_USERCODE);
+        IndexMeta primary2 = new IndexMeta();
+        primary2.setIndextype(IndexType.PRIMARY);
+        primary2.setValues(Lists.newArrayList(columnUserCodeMeta));
+
+        tableMeta.getAllIndexes().put(COLUMN_ID, primary);
+        tableMeta.getAllIndexes().put(COLUMN_USERCODE, primary2);
+
+        List<String> pkColumnName=tableMeta.getPrimaryKeyOnlyName();
+        Assertions.assertEquals("id",pkColumnName.get(0));
+        Assertions.assertEquals("userCode",pkColumnName.get(1));
     }
 
     @Test
@@ -109,15 +120,16 @@ public class TableMetaTest {
         columnMeta.setColumnName("id");
         primary.setValues(Lists.newArrayList(columnMeta));
         tableMeta.getAllIndexes().put("id", primary);
-        Assertions.assertEquals("id", tableMeta.getPkName());
+        Assertions.assertEquals("id", tableMeta.getPrimaryKeyOnlyName().get(0));
     }
 
     @Test
     public void testContainsPK() {
         TableMeta tableMeta = new TableMeta();
         Assertions.assertFalse(tableMeta.containsPK(null));
-        Assertions.assertFalse(tableMeta.containsPK(Lists.newArrayList("id")));
-
+        Throwable exception = Assertions.assertThrows(NotSupportYetException.class, () -> tableMeta.containsPK(Lists.newArrayList("id")));
+        Assertions.assertEquals(tableMeta.getTableName() + " needs to contain the primary key.",
+            exception.getMessage());
         IndexMeta primary = new IndexMeta();
         primary.setIndextype(IndexType.PRIMARY);
         ColumnMeta columnMeta = new ColumnMeta();
@@ -127,60 +139,4 @@ public class TableMetaTest {
         Assertions.assertTrue(tableMeta.containsPK(Lists.newArrayList("id")));
         Assertions.assertTrue(tableMeta.containsPK(Lists.newArrayList("ID")));
     }
-
-    @Test
-    public void testGetCreateTableSQL() {
-        TableMeta tableMeta = new TableMeta();
-        ColumnMeta id = new ColumnMeta();
-        id.setColumnName("id");
-        id.setColumnSize(1);
-        id.setColumnDef("columnDef");
-        id.setIsNullAble("isNullAble");
-        ColumnMeta name = new ColumnMeta();
-        name.setColumnName("name");
-        ColumnMeta description = new ColumnMeta();
-        name.setColumnName("description");
-        ColumnMeta englishName = new ColumnMeta();
-        name.setColumnName("englishName");
-        ColumnMeta chineseName = new ColumnMeta();
-        name.setColumnName("chineseName");
-        ColumnMeta userCode = new ColumnMeta();
-        userCode.setColumnName("userCode");
-        tableMeta.getAllColumns().put("id", id);
-        tableMeta.getAllColumns().put("name", name);
-        tableMeta.getAllColumns().put("description", description);
-        tableMeta.getAllColumns().put("englishName", englishName);
-        tableMeta.getAllColumns().put("chineseName", chineseName);
-        tableMeta.getAllColumns().put("userCode", userCode);
-
-        IndexMeta primary = new IndexMeta();
-        primary.setIndextype(IndexType.PRIMARY);
-        primary.setValues(Lists.newArrayList(id));
-        IndexMeta fullText = new IndexMeta();
-        fullText.setIndextype(IndexType.FullText);
-        fullText.setValues(Lists.newArrayList(description));
-        IndexMeta normal = new IndexMeta();
-        normal.setIndextype(IndexType.Normal);
-        normal.setValues(Lists.newArrayList(englishName, chineseName));
-        IndexMeta unique = new IndexMeta();
-        unique.setIndextype(IndexType.Unique);
-        unique.setValues(Lists.newArrayList(userCode));
-        tableMeta.getAllIndexes().put("primary", primary);
-        tableMeta.getAllIndexes().put("fullText", fullText);
-        tableMeta.getAllIndexes().put("normal", normal);
-        tableMeta.getAllIndexes().put("unique", unique);
-        Assertions.assertNotNull(tableMeta.getCreateTableSQL());
-
-        tableMeta.getAllColumns().get("id").setColumnDef(null);
-        tableMeta.getAllColumns().get("id").setIsNullAble(null);
-        Assertions.assertNotNull(tableMeta.getCreateTableSQL());
-
-        IndexMeta nullIndex = new IndexMeta();
-        nullIndex.setIndextype(null);
-        tableMeta.getAllIndexes().put("nullIndex", nullIndex);
-        Assertions.assertThrows(NullPointerException.class, () -> {
-           tableMeta.getCreateTableSQL();
-        });
-    }
-
 }
